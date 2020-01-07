@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<center>
+    Upload your MP4 file here
+    <form method="POST" class="post-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <p>
+            <h4>{{ field.label_tag }}</h4><br>
+            {{ field }}
+            {% for error in field.errors %}
+            <p style="color: red">{{ error }}</p>
+            {% endfor %}
+        </p>
+        {% endfor %}
+        <p>Categories separated by commas</p>
+        <button type="submit" class="btn-primary">Upload</button>
+    </form>
+</center>
+{% endblock %}

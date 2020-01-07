@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style='padding-left:10%;padding-right:10%;'>
+    <h2>Showing results for: {{ category }}</h2>
+    <center>
+        {% if not videos %}
+        No results
+        {% endif %}
+        {% for video in videos %}
+        <a href="{% url 'playvideo' video.0.id %}">
+            <video class="afterglow" id="myvideo" width="500px" preload='metadata'>
+                <source type="video/mp4" src="/static/upload/{{ video.0.id }}" />
+            </video><br>
+            <h2>{{ video.0.title }}</h2>
+        </a>
+        <h5>
+            {% for category in video.1 %}
+            <a href="{% url 'category' category.category_name %}">
+                <span class="badge badge-info">
+                    {{ category.category_name }}
+                </span>
+            </a>
+            {% endfor %}
+        </h5>
+        <br><br>
+        {% endfor %}
+    </center>
+</div>
+{% endblock %}

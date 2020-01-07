@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- <script src="https://cdn.jsdelivr.net/afterglow/latest/afterglow.min.js"> </script> -->
+<div style='padding-left:10%;padding-right:10%;'>
+    <center>
+        <div style="width:40%">
+            {% for video in videos %}
+            <a href="{% url 'playvideo' video.0.id %}">
+                <video class="afterglow" id="myvideo" width="500px" preload='metadata'>
+                    <source type="video/mp4" src="/static/upload/{{ video.0.id }}" />
+                </video><br>
+                <h2>{{ video.0.title }}</h2>
+            </a>
+            <h5>
+                {% for category in video.1 %}
+                <a href="{% url 'category' category.category_name %}">
+                    <span class="badge badge-info">
+                        {{ category.category_name }}
+                    </span>
+                </a>
+                {% endfor %}
+            </h5>
+            <br><br>
+            {% endfor %}
+        </div>
+    </center>
+</div>
+{% endblock %}

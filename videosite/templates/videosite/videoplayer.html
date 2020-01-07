@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/afterglow/latest/afterglow.min.js"> </script>
+<div style='padding-left:10%;padding-right:10%;'>
+
+    <div style="width:900px;position:relative;height:auto;">
+        <video class="afterglow" id="myvideo" width="1100px" controls autoplay preload="true">
+            <source type="video/mp4" src="/static/upload/{{ video.id }}" />
+        </video><br>
+    </div>
+    <h2>{{ video.title }}</h2>
+    <h5>
+        {% for category in video.1 %}
+        <a href="{% url 'category' category.category_name %}">
+            <span class="badge badge-info">
+                {{ category.category_name }}
+            </span>
+        </a>
+        {% endfor %}
+    </h5>
+    <br><br>
+    Uploaded By: {{ uploaded_by }}
+    <br><br><br>
+
+    <form method='post'>
+        {% csrf_token %}
+        {% for field in form %}
+        {{ field.label_tag }}<br>
+        {{ field }}
+        {% for error in field.errors %}
+        <p style="color: red">{{ error }}</p>
+        {% endfor %}
+        {% endfor %}
+        <button type='submit' class='btn-primary'>Comment</button>
+    </form>
+    <br><br>
+    {% for comment in comments %}
+    <b>
+        <p>{{ comment.user.username }} says</p>
+    </b>
+    <p>{{ comment.comment }}</p>
+    <br><br>
+    {% endfor %}
+</div>
+{% endblock %}
