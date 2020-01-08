@@ -75,3 +75,11 @@ def category(request, category):
     videos_and_categories_pair_list = get_videos_and_categories_pair_list_from_search(
         category)
     return render(request, 'videosite/search.html', {'videos': videos_and_categories_pair_list, 'category': category, 'title': 'Search'})
+
+
+def error_404(request, exception):
+    return render(request, 'videosite/error_404.html')
+
+
+def error_500(request):
+    return render(request, 'videosite/error_500.html')
