@@ -1,7 +1,7 @@
 from django.contrib.auth import login, authenticate
 from .forms import UserCreationForm, VideoUploadForm, CommentForm
 from django.shortcuts import render, redirect
-from .services import store_file, check_file_type, create_user, get_videos_and_categories_pair_list, store_video
+from .services import store_file, check_file_type, create_user, get_videos_and_categories_pair_list, store_video, get_playvideo_contents, get_videos_and_categories_pair_list_from_search
 from .models import Video, Category, Comment
 import os
 
@@ -14,7 +14,7 @@ def signup(request):
             return redirect('mainpage')
     else:
         form = UserCreationForm()
-    return render(request, 'videosite/signup.html', {'form': form})
+    return render(request, 'videosite/signup.html', {'form': form, 'title': 'SignUp'})
 
 
 def mainpage(request):
@@ -29,7 +29,7 @@ def dashboard(request):
     if not(request.user.is_authenticated):
         return redirect('login')
     else:
-        return render(request, 'videosite/dashboard.html', {'videos': get_videos_and_categories_pair_list()})
+        return render(request, 'videosite/dashboard.html', {'videos': get_videos_and_categories_pair_list(), 'title': 'Youtube'})
 
 
 def upload(request):
@@ -41,13 +41,13 @@ def upload(request):
             if form.is_valid():
                 video_store_bool = store_video(request, form)
                 if(video_store_bool):
-                    return render(request, 'videosite/uploadsuccess.html')
+                    return render(request, 'videosite/uploadsuccess.html', {'title': 'Success'})
                 else:
-                    return render(request, 'videosite/wrongfile.html')
+                    return render(request, 'videosite/wrongfile.html', {'title': 'Failed'})
             return redirect('dashboard')
         else:
             form = VideoUploadForm()
-        return render(request, 'videosite/upload.html', {'form': form})
+        return render(request, 'videosite/upload.html', {'form': form, 'title': 'Upload'})
 
 
 def playvideo(request, video_id):
@@ -61,24 +61,17 @@ def playvideo(request, video_id):
             return redirect('playvideo', video_id)
     else:
         form = CommentForm()
-        video = Video.objects.prefetch_related().filter(id=video_id)
-        categories = video[0].categories.all()
-        uploaded_by = video[0].user.username
-        comments = video[0].comments.order_by('-id')
+        video, categories, uploaded_by, comments = get_playvideo_contents(
+            video_id)
         if(not(video)):
-            return 404
-        return render(request, 'videosite/videoplayer.html', {'video': video[0], 'categories': categories, 'uploaded_by': uploaded_by, 'form': form, 'comments': comments})
-    return render(request, 'videosite/videoplayer.html', {'video': video[0], 'categories': categories, 'uploaded_by': uploaded_by, 'form': form, 'comments': comments})
+            return render(request, 'videosite/videonotfound.html')
+        return render(request, 'videosite/videoplayer.html', {'video': video[0], 'categories': categories, 'uploaded_by': uploaded_by, 'form': form, 'comments': comments, 'title': 'PlayVideo'})
+    return render(request, 'videosite/videoplayer.html', {'video': video[0], 'categories': categories, 'uploaded_by': uploaded_by, 'form': form, 'comments': comments, 'title': 'PlayVideo'})
 
 
 def category(request, category):
     if not(request.user.is_authenticated):
         return redirect('login')
-    category_searched = category
-    categories = Category.objects.prefetch_related().filter(
-        category_name__icontains=category).all()
-    videos_and_categories_pair_list = []
-    for category in categories:
-        videos_and_categories_pair_list.append(
-            (category.video, category.video.categories.all()))
-    return render(request, 'videosite/search.html', {'videos': videos_and_categories_pair_list, 'category': category_searched})
+    videos_and_categories_pair_list = get_videos_and_categories_pair_list_from_search(
+        category)
+    return render(request, 'videosite/search.html', {'videos': videos_and_categories_pair_list, 'category': category, 'title': 'Search'})

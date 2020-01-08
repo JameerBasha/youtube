@@ -48,3 +48,23 @@ def get_videos_and_categories_pair_list():
         videos_and_categories_pair_list.append(
             (video, video.categories.all()))
     return videos_and_categories_pair_list
+
+
+def get_playvideo_contents(video_id):
+    video = Video.objects.prefetch_related().filter(id=video_id)
+    if(not(video)):
+        return 0, 1, 1, 1
+    categories = video[0].categories.all()
+    uploaded_by = video[0].user.username
+    comments = video[0].comments.order_by('-id')
+    return video, categories, uploaded_by, comments
+
+
+def get_videos_and_categories_pair_list_from_search(category):
+    categories = Category.objects.prefetch_related().filter(
+        category_name__icontains=category).all()
+    videos_and_categories_pair_list = []
+    for category in categories:
+        videos_and_categories_pair_list.append(
+            (category.video, category.video.categories.all()))
+    return videos_and_categories_pair_list
